@@ -9,7 +9,8 @@ export const VirtualClinicCard: React.FC<VirtualClinicCardProps> = ({ onLaunchCl
   return (
     <div 
       style={{
-        background: 'linear-gradient(103deg, #4648D4 0%, #6B38D4 100%)',
+        // Angle measured from the reference (plane fit, residual 1.0 RGB unit).
+        background: 'linear-gradient(133deg, #4648D4 0%, #6B38D4 100%)',
       }}
       className="relative w-full max-w-[436px] min-h-[220px] rounded-[20px] p-8 flex flex-col justify-between overflow-hidden shadow-lg shrink-0"
     >
@@ -36,6 +37,7 @@ export const VirtualClinicCard: React.FC<VirtualClinicCardProps> = ({ onLaunchCl
       {/* LAUNCH VIRTUAL CLINIC BUTTON */}
       <div className="z-10">
         <button
+          type="button"
           onClick={onLaunchClinic}
           className="h-[48px] px-8 bg-white hover:bg-slate-50 text-[#4648D4] font-manrope font-bold text-[16px] leading-[24px] rounded-[16px] flex items-center justify-center transition-transform active:scale-[0.98] cursor-pointer shadow-md"
         >

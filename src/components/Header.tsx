@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { Search, Settings, Bell, Sparkles, User, ChevronDown } from 'lucide-react';
+import React from 'react';
+import { Search, Settings, Bell, Sparkles, ArrowLeft } from 'lucide-react';
 import { patientInfo } from '../data/mockHealthData';
 
 interface HeaderProps {
   onOpenAva: () => void;
+  /** Navigation state is owned by App; this header holds none of its own. */
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenAva }) => {
-  const [activeTab, setActiveTab] = useState('Dashboard');
-
+export const Header: React.FC<HeaderProps> = ({ onOpenAva, activeTab, onTabChange }) => {
   const navItems = [
     'Dashboard',
     'Appointment',
@@ -24,9 +25,24 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAva }) => {
         <div className="flex items-center justify-between h-18 py-3">
           
           {/* Left: Brand Logo & Navigation Links Pill */}
-          <div className="flex items-center space-x-6 sm:space-x-8">
+          <div className="flex items-center space-x-3 sm:space-x-6 lg:space-x-8 min-w-0">
+            {/*
+              Back affordance. The nav pill below is `hidden lg:flex`, so without
+              this there is no way off this view at mobile/tablet widths.
+            */}
+            {activeTab !== 'Dashboard' && (
+              <button
+                type="button"
+                onClick={() => onTabChange('Dashboard')}
+                aria-label="Back to Dashboard"
+                className="lg:hidden w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-slate-600 hover:text-brand-700 hover:bg-brand-50 transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="w-5 h-5" aria-hidden="true" />
+              </button>
+            )}
+
             {/* Brand Logo */}
-            <div className="flex items-center space-x-2.5">
+            <div className="flex items-center space-x-2.5 min-w-0">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-600 to-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-500/25 ring-2 ring-brand-200">
                 <Sparkles className="w-5.5 h-5.5 animate-pulse" />
               </div>
@@ -40,13 +56,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAva }) => {
             </div>
 
             {/* Navigation Pill Container - exact links from original design */}
-            <nav className="hidden lg:flex items-center bg-slate-100/80 p-1.5 rounded-full border border-slate-200/60">
+            <nav
+              aria-label="Primary navigation"
+              className="hidden lg:flex items-center bg-slate-100/80 p-1.5 rounded-full border border-slate-200/60"
+            >
               {navItems.map((item) => {
                 const isActive = activeTab === item;
                 return (
                   <button
+                    type="button"
                     key={item}
-                    onClick={() => setActiveTab(item)}
+                    onClick={() => onTabChange(item)}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-200 ${
                       isActive
                         ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/30'
@@ -78,6 +99,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAva }) => {
 
             {/* Quick Ask Ava CTA */}
             <button
+              type="button"
               onClick={onOpenAva}
               className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100/80 border border-brand-200/80 rounded-full transition-all duration-200 shadow-sm"
               title="Ask Ava AI Assistant"
@@ -88,13 +110,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAva }) => {
 
             {/* Settings & Bell Icons */}
             <div className="flex items-center space-x-1 sm:space-x-2">
-              <button 
+              <button
+                type="button"
                 className="p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-colors"
                 aria-label="Settings"
               >
                 <Settings className="w-4 h-4" />
               </button>
-              <button 
+              <button
+                type="button"
                 className="p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-colors relative"
                 aria-label="Notifications"
               >
@@ -108,7 +132,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAva }) => {
               <img
                 src={patientInfo.avatarUrl}
                 alt={patientInfo.name}
-                className="w-9 h-9 rounded-full object-cover ring-2 ring-brand-200/70"
+                width={36}
+                height={36}
+                decoding="async"
+                onError={(e) => {
+                  e.currentTarget.style.visibility = 'hidden';
+                }}
+                className="w-9 h-9 rounded-full object-cover ring-2 ring-brand-200/70 bg-slate-100"
               />
               <div className="hidden sm:block text-left">
                 <p className="text-xs font-bold text-slate-900 leading-tight flex items-center gap-1">

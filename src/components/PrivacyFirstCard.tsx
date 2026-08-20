@@ -9,14 +9,14 @@ export const PrivacyFirstCard: React.FC = () => {
       <div className="flex items-center gap-4">
         {/* Shield Icon in white circular/rounded box */}
         <div className="w-[40px] h-[44px] bg-white rounded-[16px] p-3 flex items-center justify-center shrink-0 shadow-xs">
-          <ShieldCheck className="w-5 h-5 text-[#4648D4] stroke-[2.2]" />
+          <ShieldCheck className="w-5 h-5 text-[#4648D4] stroke-[2.2]" aria-hidden="true" />
         </div>
 
         {/* Title and Subtitle */}
         <div className="flex flex-col">
-          <h4 className="font-manrope font-extrabold text-[16px] leading-[24px] text-[#0B1C30]">
+          <h3 className="font-manrope font-extrabold text-[16px] leading-[24px] text-[#0B1C30]">
             Privacy First
-          </h4>
+          </h3>
           <p className="font-manrope font-semibold text-[12px] leading-[16px] tracking-[0.60px] text-[#464554] uppercase">
             HIPAA Compliant &amp; Encrypted
           </p>

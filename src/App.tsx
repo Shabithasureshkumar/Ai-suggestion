@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { AIConciergePage } from './components/AIConciergePage';
+import React, { useEffect, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { AIHealthHero } from './components/AIHealthHero';
 import { OverallHealthStatus } from './components/OverallHealthStatus';
@@ -15,22 +14,63 @@ import { Sparkles } from 'lucide-react';
 
 import { AiSuggestionPage } from './components/AiSuggestionPage';
 
+type Tab = 'Dashboard' | 'Appointment' | 'Patient' | 'Reports' | 'Chats' | 'Billing';
+
+const TABS: Tab[] = ['Dashboard', 'Appointment', 'Patient', 'Reports', 'Chats', 'Billing'];
+
+const tabFromHash = (): Tab => {
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+  return TABS.find((t) => t.toLowerCase() === hash) ?? 'Dashboard';
+};
+
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'Dashboard' | 'Appointment' | 'Patient' | 'Reports' | 'Chats' | 'Billing'>('Dashboard');
+  // Single source of truth for navigation. Previously both AiSuggestionPage's
+  // TopNavigation and the summary view's Header kept their own copies, so
+  // navigating away from the AI Suggestion screen was a one-way trip.
+  const [activeTab, setActiveTab] = useState<Tab>(tabFromHash);
   const [isAvaOpen, setIsAvaOpen] = useState(false);
   const [avaContext, setAvaContext] = useState<string | undefined>(undefined);
   const [selectedVital, setSelectedVital] = useState<VitalItem | null>(null);
+  const isFirstRender = useRef(true);
 
   const handleOpenAva = (contextPrompt?: string) => {
     setAvaContext(contextPrompt);
     setIsAvaOpen(true);
   };
 
-  // If activeTab is 'Dashboard', render the exact Figma AI Suggestion Page
+  const handleTabChange = (tab: string) => {
+    const next = TABS.find((t) => t === tab);
+    if (!next || next === activeTab) return;
+    setActiveTab(next);
+    window.history.pushState({ tab: next }, '', `#${next.toLowerCase()}`);
+  };
+
+  // Browser back/forward moves between screens instead of leaving the app.
+  useEffect(() => {
+    const onPopState = () => setActiveTab(tabFromHash());
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // On screen transition: scroll to top and move focus into the new screen so
+  // keyboard and screen-reader users are not left on <body>.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    // preventScroll matters: focusing a tabindex=-1 container otherwise
+    // scrolls it back into view and undoes the scroll-to-top.
+    document.getElementById('main-content')?.focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  }, [activeTab]);
+
+  // If activeTab is 'Dashboard', render the AI Suggestion Page
   if (activeTab === 'Dashboard') {
     return (
-      <AiSuggestionPage 
-        onTabChange={(tab) => setActiveTab(tab as any)}
+      <AiSuggestionPage
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
       />
     );
   }
@@ -40,10 +80,18 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-[#F6F5FB] text-slate-800 flex flex-col font-sans selection:bg-purple-100 selection:text-purple-900 pb-16">
       
       {/* Top Navbar */}
-      <Header onOpenAva={() => handleOpenAva()} />
+      <Header
+        onOpenAva={() => handleOpenAva()}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
 
       {/* Main Page Body Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 focus:outline-none"
+      >
         
         {/* HERO / AI SUMMARY SECTION */}
         <section aria-label="AI Health Summary Hero">

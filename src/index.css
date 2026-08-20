@@ -7,6 +7,14 @@
     background-color: #FDFDFD;
     font-family: 'Manrope', sans-serif;
   }
+
+  /* Project-consistent keyboard focus ring. Replaces reliance on the
+     browser default outline, which varied per engine. Pointer interaction
+     is unaffected because this targets :focus-visible only. */
+  :focus-visible {
+    outline: 2px solid #5C24FF;
+    outline-offset: 2px;
+  }
 }
 
 @layer utilities {

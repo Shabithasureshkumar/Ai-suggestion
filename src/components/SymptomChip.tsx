@@ -13,12 +13,17 @@ export const SymptomChip: React.FC<SymptomChipProps> = ({ label, onRemove }) => 
         {label}
       </span>
       {onRemove && (
+        /*
+          The visible 16px glyph is kept, but `after:-inset-[14px]` extends the
+          hit area to ~44x44 without changing the chip's rendered dimensions.
+        */
         <button
+          type="button"
           onClick={onRemove}
-          className="w-4 h-4 rounded-full flex items-center justify-center text-[#4648D4] hover:bg-[#E1E0FF] transition-colors cursor-pointer"
+          className="relative w-4 h-4 rounded-full flex items-center justify-center text-[#4648D4] hover:bg-[#E1E0FF] transition-colors cursor-pointer after:absolute after:-inset-[14px] after:content-['']"
           aria-label={`Remove ${label}`}
         >
-          <X className="w-3.5 h-3.5 stroke-[2.2]" />
+          <X className="w-3.5 h-3.5 stroke-[2.2]" aria-hidden="true" />
         </button>
       )}
     </div>
